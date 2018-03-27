@@ -1,0 +1,5 @@
+package org.fog.scheduling.gaEntities;
+
+public class Individual {
+
+}

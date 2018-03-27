@@ -1,0 +1,15 @@
+LaunchTargetManager/configs/CloudletCreation=org.eclipse.launchbar.core.launchTargetType.local\:Local
+LaunchTargetManager/configs/FogSchedulingExample=org.eclipse.launchbar.core.launchTargetType.local\:Local
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=win32
+activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+configDescList=org.eclipse.launchbar.core.descriptorType.default\:VRGameFog,org.eclipse.launchbar.core.descriptorType.default\:TwoApps,org.eclipse.launchbar.core.descriptorType.default\:SDNExample,org.eclipse.launchbar.core.descriptorType.default\:WorkflowSimCostExample1,org.eclipse.launchbar.core.descriptorType.default\:FCFSSchedulingAlgorithmExample,org.eclipse.launchbar.core.descriptorType.default\:GraphicSDN,org.eclipse.launchbar.core.descriptorType.default\:CloudSimExample1,org.eclipse.launchbar.core.descriptorType.default\:Dvfs,org.eclipse.launchbar.core.descriptorType.default\:DCNSFog,org.eclipse.launchbar.core.descriptorType.default\:CloudSimExample8,org.eclipse.launchbar.core.descriptorType.default\:FogGui,org.eclipse.launchbar.core.descriptorType.default\:CloudletCreation,org.eclipse.launchbar.core.descriptorType.default\:FogSchedulingExample
+eclipse.preferences.version=1
+org.eclipse.launchbar.core.descriptorType.default\:CloudSimExample1/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:CloudSimExample1/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:CloudletCreation/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:CloudletCreation/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:DCNSFog/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:DCNSFog/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:FogSchedulingExample/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:VRGameFog/activeLaunchMode=run

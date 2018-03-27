@@ -1,0 +1,81 @@
+package org.fog.scheduling;
+
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.Datacenter;
+import org.cloudbus.cloudsim.DatacenterBroker;
+import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.UtilizationModel;
+import org.cloudbus.cloudsim.UtilizationModelFull;
+import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.examples.CloudSimExample8.GlobalBroker;
+
+
+
+public class CloudletCreation {
+
+	/** The cloudlet list. */
+	private static List<Cloudlet> cloudletList;
+	public static int NUMBER_OF_CLOUDLETS = 20;
+
+	////////////////////////// STATIC METHODS ///////////////////////
+
+	/**
+	 * Creates main() to run this example
+	 */
+	public static void main(String[] args) {
+		Log.printLine("Starting Cloudlet Creation program.");
+		Log.printLine("The data will be stored in a xml file.");
+
+		cloudletList = createCloudlet(NUMBER_OF_CLOUDLETS, 0); // creating NUMBER_OF_CLOUDLETS cloudlets
+	}
+
+	private static List<Cloudlet> createCloudlet(int cloudlets, int idShift) {
+		// Creates a container to store Cloudlets
+		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+
+		// cloudlet parameters
+		long length = 40000;
+		long fileSize = 300;
+		long outputSize = 300;
+		int pesNumber = 1;
+		UtilizationModel utilizationModel = new UtilizationModelFull();
+
+		Cloudlet[] cloudlet = new Cloudlet[cloudlets];
+
+		for (int i = 0; i < cloudlets; i++) {
+			cloudlet[i] = new Cloudlet(idShift + i, length, pesNumber, fileSize, outputSize, utilizationModel,
+					utilizationModel, utilizationModel);
+			list.add(cloudlet[i]);
+		}
+
+		return list;
+	}
+	
+	public static Document InsertAppendNode(String pFilePath,
+	        String pStrTiengAnh, String pStrTiengViet) throws Exception {
+	        File f = new File(pFilePath);
+	        Document doc = null;
+	        Element root = null;
+	        if (!f.exists()||index==0) {  //nếu như file đó không tồn tại
+	            doc = DocumentBuilderFactory.newInstance().
+	                    newDocumentBuilder().newDocument();
+	            root = doc.createElement("TuDien");
+	            doc.appendChild(root);
+	        } else {
+	            doc = DocumentBuilderFactory.newInstance().
+	                    newDocumentBuilder().parse(f);
+	            root = doc.getDocumentElement();
+	        }
+
+	        Element pAnhViet = doc.createElement("AnhViet");
+	        pAnhViet.setAttribute("TiengAnh",pStrTiengAnh);
+	        pAnhViet.setAttribute("TiengViet",pStrTiengViet);      
+	        root.appendChild(pAnhViet);
+
+	        return doc;
+	    }
+}

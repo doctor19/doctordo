@@ -1,0 +1,63 @@
+package org.fog.scheduling;
+
+import java.util.List;
+
+import org.cloudbus.cloudsim.Cloudlet;
+import org.fog.entities.FogDevice;
+import org.fog.scheduling.gaEntities.GeneticAlgorithm;
+import org.fog.scheduling.gaEntities.Population;
+
+public class SchedulingAlgorithm {
+
+	public static final String GA = "Genetic Algorithm";
+	
+	public static void runGeneticAlgorithm(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+		// Create GA object
+				GeneticAlgorithm ga = new GeneticAlgorithm(1000, 0.001, 0.95, 2);
+
+				// Initialize population
+				Population population = ga.initPopulation(cloudletList.size(), fogDevices.size() - 1);
+
+				// Evaluate population
+				ga.evalPopulation(population, fogDevices, cloudletList);
+
+				// Keep track of current generation
+				int generation = 1;
+
+				/**
+				 * Start the evolution loop
+				 * 
+				 * Every genetic algorithm problem has different criteria for finishing.
+				 * In this case, we know what a perfect solution looks like (we don't
+				 * always!), so our isTerminationConditionMet method is very
+				 * straightforward: if there's a member of the population whose
+				 * chromosome is all ones, we're done!
+				 */
+				while (generation < 1000) {
+					// Print fittest individual from population
+					System.out.println("\nBest solution of generation " + generation + ": " + population.getFittest(0).getFitness());
+					System.out.println("Makespan: " + population.getFittest(0).getTime());
+					
+					// Apply crossover
+					population = ga.crossoverPopulation(population);
+
+					// Apply mutation
+					population = ga.mutatePopulation(population);
+
+					// Evaluate population
+					ga.evalPopulation(population, fogDevices, cloudletList);
+//					population.printPopulation();
+
+					// Increment the current generation
+					generation++;
+				}
+
+				/**
+				 * We're out of the loop now, which means we have a perfect solution on
+				 * our hands. Let's print it out to confirm that it is actually all
+				 * ones, as promised.
+				 */
+				System.out.println("Found solution in " + generation + " generations");
+				System.out.println("Best solution: " + population.getFittest(0).getFitness());
+	}
+}
