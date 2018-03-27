@@ -1,0 +1,16 @@
+1521015097091	Encapsulate field 'fogDevices'
+1521015855102	Rename type 'FogScheduler'
+1521015981713	Encapsulate field 'cloudletList'
+1521086801996	Encapsulate field 'cost'
+1521086809238	Encapsulate field 'time'
+1521086816179	Encapsulate field 'fitness'
+1521097609120	Encapsulate field 'genLength'
+1521097815375	Delete element
+1521106690426	Encapsulate field 'cloudletListAssignment'
+1521171210920	Encapsulate field 'maxValue'
+1521180092550	Delete element
+1521276877674	Encapsulate field 'cloudletIt'
+1521276882930	Encapsulate field 'fogId'
+1521277735142	Rename local variable 'geneIndex'
+1521277749628	Rename local variable 'value'
+1521278101253	Delete element

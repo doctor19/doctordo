@@ -1,0 +1,234 @@
+package org.fog.scheduling;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.cloudbus.cloudsim.Cloudlet;
+import org.fog.entities.FogDevice;
+import org.fog.scheduling.gaEntities.GeneticAlgorithm;
+import org.fog.scheduling.gaEntities.Individual;
+import org.fog.scheduling.gaEntities.Population;
+import org.fog.scheduling.gaEntities.Service;
+import org.fog.scheduling.localSearchAlgorithm.LocalSearchAlgorithm;
+import org.fog.scheduling.localSearchAlgorithm.Pair;
+
+public class SchedulingAlgorithm {
+
+//Algorithm name
+	public static final String GA = "Genetic Algorithm";
+	public static final String LOCAL_SEARCH = "local search";
+	public static final String TABU_SEARCH = "tabu search";
+	
+//GA parameters
+	public static final int NUMBER_INDIVIDUAL = 10;
+	public static final int NUMBER_ITERATION = 2;
+	
+	public static final double MUTATION_RATE = 0.1;
+	public static final double CROSSOVER_RATE = 0.95;
+	public static final int NUMBER_ELITISM_INDIVIDUAL = 2;
+	
+//Tabu Search parameters
+	public static final int TABU_CONSTANT = 10;
+	
+// GA run
+	public static void runGeneticAlgorithm(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+		// Create GA object
+				GeneticAlgorithm ga = new GeneticAlgorithm(NUMBER_INDIVIDUAL, MUTATION_RATE, CROSSOVER_RATE, NUMBER_ELITISM_INDIVIDUAL);
+
+				// Initialize population
+				Population population = ga.initPopulation(cloudletList.size(), fogDevices.size() - 1);
+
+				// Evaluate population
+				ga.evalPopulation(population, fogDevices, cloudletList);
+
+//				population.printPopulation();
+				
+				// Keep track of current generation
+				int generation = 0;
+
+				/**
+				 * Start the evolution loop
+				 * 
+				 * Every genetic algorithm problem has different criteria for finishing.
+				 * In this case, we know what a perfect solution looks like (we don't
+				 * always!), so our isTerminationConditionMet method is very
+				 * straightforward: if there's a member of the population whose
+				 * chromosome is all ones, we're done!
+				 */
+				while (generation < NUMBER_ITERATION) {
+					System.out.println("\n------------- Generation " + generation + " --------------");
+					
+					// Apply crossover
+					population = ga.crossoverPopulation(population);
+					System.out.println("Population size after crossover:" + population.size());
+					// Apply mutation
+					population = ga.mutatePopulation(population);
+					System.out.println("Population size after mutation:" + population.size());
+
+					
+					
+					// Evaluate population
+					ga.evalPopulation(population, fogDevices, cloudletList);
+//					population.printPopulation();
+
+					//select individuals to form the population in current generation.
+					ga.selectPopulation(population);
+					System.out.println("Population size after selection:" + population.size());
+					// Increment the current generation
+					
+					population.getFittest(0).printGene();
+					
+					// Print fittest individual from population
+					System.out.println("\nBest solution of generation " + generation + ": " + population.getFittest(0).getFitness());
+					System.out.println("Makespan: " + population.getFittest(0).getTime());
+					
+					generation++;
+				}
+
+				/**
+				 * We're out of the loop now, which means we have a perfect solution on
+				 * our hands. Let's print it out to confirm that it is actually all
+				 * ones, as promised.
+				 */
+				population.printPopulation();
+				System.out.println(">>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<");
+				System.out.println("Found solution in " + generation + " generations");
+				System.out.println("Best solution: " + population.getFittest(0).getFitness());
+	}
+	
+	
+//local search algorithm
+	public static void runLocalSearchAlgorithm(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+		//initiate an individual
+		Individual individual = new Individual(cloudletList.size(), fogDevices.size() - 1);
+		individual.printGene();
+		
+		//listChange contains which gen change makes the individual better
+		List<Pair> listChange = new ArrayList<Pair>();
+		
+		LocalSearchAlgorithm localSearch = new LocalSearchAlgorithm();
+		int numberRound = 0;
+		
+		// Start local search loop
+		do {
+			numberRound++;
+			System.out.println("\n--------------------------------------");
+			System.out.println("Round " + numberRound + ": ");
+			listChange.clear();
+			//fitness stores the fitness value of current individual
+			double fitness = localSearch.calcFitness(individual, fogDevices, cloudletList);
+			
+			//consider which gene changed makes individual better
+			for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
+				for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {
+					
+					// create newIndividual similar to individual
+					Individual newIndividual = new Individual(individual.getChromosomeLength());
+					for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
+						newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+					}
+					
+					// change a gene of individual to form newIndividual
+					newIndividual.setGene(cloudletId, fogId);
+					double newFitness = localSearch.calcFitness(newIndividual, fogDevices, cloudletList); 
+					//if newIndividual is better then individual, store change in listChange
+					if(newFitness > fitness) {
+						listChange.add(new Pair(cloudletId, fogId));
+					}
+				}
+			}
+			
+			// if exist any gene make individual better, select randomly a gene change to have newIndividual
+			System.out.println("Number of changelist: " + listChange.size());
+			if(!listChange.isEmpty()) {
+				int change = Service.rand(0, listChange.size() - 1);
+				individual.setGene(listChange.get(change).getCloudletId(), listChange.get(change).getFogId());
+				System.out.println("change possition: " + listChange.get(change).getCloudletId() + " " + listChange.get(change).getFogId());
+			}
+			individual.printGene();
+			
+			System.out.println("\nFitness value: " + individual.getFitness());
+			System.out.println("Makespan: " + individual.getTime() + "\n");
+			
+		} while (!listChange.isEmpty());
+	}
+	
+	
+	//Tabu Search algorithm
+		public static void runTabuSearchAlgorithm(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+			//initiate an individual
+			Individual individual = new Individual(cloudletList.size(), fogDevices.size() - 1);
+			individual.printGene();
+			
+			//initiate Tabu metric, the value of each element is -1
+			int[][] tabuMetric = new int[individual.getChromosomeLength()][individual.getMaxValue() + 1];
+			for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
+				for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {
+					tabuMetric[cloudletId][fogId] = -1;
+				}
+			}
+			
+			
+			//listChange contains which gen change makes the individual better
+			List<Pair> listChange = new ArrayList<Pair>();
+			
+			LocalSearchAlgorithm localSearch = new LocalSearchAlgorithm();
+			int numberRound = 0;
+			
+			// Start local search loop
+			do {
+				numberRound++;
+				System.out.println("\n--------------------------------------");
+				System.out.println("Round " + numberRound + ": ");
+				listChange.clear();
+				//fitness stores the fitness value of current individual
+				double fitness = localSearch.calcFitness(individual, fogDevices, cloudletList);
+				
+				//consider which gene changed makes individual better
+				for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
+					for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {
+						
+						// create newIndividual similar to individual
+						Individual newIndividual = new Individual(individual.getChromosomeLength());
+						for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
+							newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+						}
+						
+						// change a gene of individual to form newIndividual
+						newIndividual.setGene(cloudletId, fogId);
+						double newFitness = localSearch.calcFitness(newIndividual, fogDevices, cloudletList); 
+						//if newIndividual is better then individual, store change in listChange
+						if(newFitness > fitness) {
+							listChange.add(new Pair(cloudletId, fogId));
+						}
+					}
+				}
+				
+				// if exist any gene make individual better, select randomly a gene change to have newIndividual
+				System.out.println("Number of changelist: " + listChange.size());
+				if(!listChange.isEmpty()) {
+					int change = Service.rand(0, listChange.size() - 1);
+					//if 
+					if(tabuMetric[listChange.get(change).getCloudletId()][listChange.get(change).getFogId()] < 0) {
+						individual.setGene(listChange.get(change).getCloudletId(), listChange.get(change).getFogId());
+						System.out.println("change possition: " + listChange.get(change).getCloudletId() + " " + listChange.get(change).getFogId());
+						tabuMetric[listChange.get(change).getCloudletId()][listChange.get(change).getFogId()] = TABU_CONSTANT;
+					} else {
+						System.out.println("No gene changed!!!");
+					}
+					
+				}
+				individual.printGene();
+				
+				for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
+					for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {
+						tabuMetric[cloudletId][fogId]--;
+					}
+				}
+				
+				System.out.println("\nFitness value: " + individual.getFitness());
+				System.out.println("Makespan: " + individual.getTime() + "\n");
+				
+			} while (!listChange.isEmpty());
+		}
+}
